@@ -12,31 +12,24 @@
     ></video>
     <!-- <div class="three-container" ref="threeContainer">
       <canvas class="three-canvas" ref="threeCanvas"></canvas>
-    </div> -->
-    <Three360Canvas
-      :videoIsReady="videoIsLoaded"
-      :fov="fov"
-      videoTagId="video-source"
-    ></Three360Canvas>
+    </div>-->
+    <Three360Canvas 
+      :videoIsReady="videoIsLoaded" 
+      :fov="fov" 
+      videoTagId="video-source"></Three360Canvas>
     <v-card class="camera-controls">
-      <v-card-title
-        ><h3>
+      <v-card-title>
+        <h3>
           Titta runt genom att klicka och dra i bilden. Gör kamera-dollying med
           scroll-hjulet. Använd reglaget nedan för att zooma.
-        </h3></v-card-title
-      >
+        </h3>
+      </v-card-title>
       <v-card-actions>
-        <v-slider
-          v-model="fov"
-          min="20"
-          max="200"
-          thumb-label
-          label="Field of view"
-        ></v-slider>
+        <v-slider v-model="fov" min="20" max="200" thumb-label label="Field of view"></v-slider>
       </v-card-actions>
       <!-- <v-card-actions>
         <v-btn v-on:click="buttonState = !buttonState">Video is playing</v-btn>
-      </v-card-actions> -->
+      </v-card-actions>-->
     </v-card>
   </div>
 </template>
@@ -60,8 +53,6 @@ export default class VideoView extends Vue {
   private videoUrl: string =
     'https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8';
   // 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8';
-  // private videoUrl: string = 'https://wowzaprod200-i.akamaihd.net/hls/live/755582/c77e8264/playlist.m3u8';
-  // private videoUrl: string = 'https://wowzaprod252-i.akamaihd.net/hls/live/759094/aada032e/playlist.m3u8';
   private videoTag!: HTMLVideoElement;
   // private threeContainer!: HTMLDivElement;
   // private threeCanvas!: HTMLCanvasElement;
@@ -82,7 +73,12 @@ export default class VideoView extends Vue {
       this.videoUrl = <string>this.$route.query.videourl;
     }
 
-    this.setupHls(this.videoTag);
+    if (this.videoUrl.endsWith('.m3u8')) {
+      this.setupHls(this.videoTag);
+    } else {
+      this.videoTag.src = this.videoUrl;
+      this.videoTag.play();
+    }
     document.addEventListener('keypress', e => {
       // console.log('key:');
       // console.log(e);
