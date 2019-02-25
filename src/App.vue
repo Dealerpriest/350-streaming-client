@@ -2,7 +2,11 @@
   <v-app dark>
     <v-toolbar app>
       <v-toolbar-title class="headline text-uppercase">
-        <span>RISE</span>
+        <img
+          class="rise-logo"
+          :src="require('./assets/rise-logo-white.svg')"
+          alt="RISE Logo"
+        />
         <span class="font-weight-light"> 360 Streaming</span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
@@ -32,3 +36,10 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.rise-logo {
+  width: 40px;
+  height: 40px;
+}
+</style>

@@ -56,9 +56,9 @@ import Hls from 'hls.js';
   },
 })
 export default class VideoView extends Vue {
+  // private videoUrl: string = 'http://188.166.5.71:1935/live/detu/playlist.m3u8';
   private videoUrl: string =
-    'https://wowzaprod254-i.akamaihd.net/hls/live/767623/347fc50a/playlist.m3u8';
-  // 'https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8';
+    'https://bitmovin-a.akamaihd.net/content/playhouse-vr/m3u8s/105560.m3u8';
   // 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8';
   // private videoUrl: string = 'https://wowzaprod200-i.akamaihd.net/hls/live/755582/c77e8264/playlist.m3u8';
   // private videoUrl: string = 'https://wowzaprod252-i.akamaihd.net/hls/live/759094/aada032e/playlist.m3u8';
@@ -77,6 +77,10 @@ export default class VideoView extends Vue {
 
   private mounted() {
     this.videoTag = <HTMLVideoElement>this.$refs.videoTag;
+
+    if (this.$route.query && this.$route.query.videourl) {
+      this.videoUrl = <string>this.$route.query.videourl;
+    }
 
     this.setupHls(this.videoTag);
     document.addEventListener('keypress', e => {
