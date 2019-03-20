@@ -13,10 +13,12 @@
     <!-- <div class="three-container" ref="threeContainer">
       <canvas class="three-canvas" ref="threeCanvas"></canvas>
     </div>-->
-    <Three360Canvas 
-      :videoIsReady="videoIsLoaded" 
-      :fov="fov" 
-      videoTagId="video-source"></Three360Canvas>
+    <Three360Canvas
+      :videoIsReady="videoIsLoaded"
+      :fov="fov"
+      videoTagId="video-source"
+    >
+    </Three360Canvas>
     <v-card class="camera-controls">
       <v-card-title>
         <h3>
@@ -25,7 +27,14 @@
         </h3>
       </v-card-title>
       <v-card-actions>
-        <v-slider v-model="fov" min="20" max="200" thumb-label label="Field of view"></v-slider>
+        <v-slider
+          v-model="fov"
+          min="20"
+          max="200"
+          thumb-label
+          label="Field of view"
+        >
+        </v-slider>
       </v-card-actions>
       <!-- <v-card-actions>
         <v-btn v-on:click="buttonState = !buttonState">Video is playing</v-btn>
@@ -38,6 +47,7 @@
 import { Component, Watch, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 import Three360Canvas from '@/components/Three360Canvas.vue';
+import { red5prosdk } from '@/js/red5pro';
 // import * as THREE from 'three';
 // import { OrbitControls } from 'three-orbitcontrols-ts';
 import Hls from 'hls.js';
@@ -78,7 +88,10 @@ export default class VideoView extends Vue {
     } else {
       this.videoTag.src = this.videoUrl;
       this.videoTag.play();
+    } else {
+      setupRed5Pro(this.videoUrl);
     }
+
     document.addEventListener('keypress', e => {
       // console.log('key:');
       // console.log(e);
@@ -117,6 +130,41 @@ export default class VideoView extends Vue {
         video.play();
       });
     }
+  }
+
+  private setupRed5Pro(string: videoUrl){
+    // setup red5pro
+    let subscriber = new red5prosdk.RTCSubscriber();
+
+    // Create a view instance based on video element id.
+    let viewer = new red5prosdk.PlaybackView('video-source');
+    // Attach the subscriber to the view.
+    viewer.attachSubscriber(subscriber);
+
+    // Using Chrome/Google TURN/STUN servers.
+    var iceServers = [{ urls: 'stun:stun2.l.google.com:19302' }];
+
+    // Initialize
+    subscriber
+      .init({
+        protocol: 'ws',
+        host: 'videoUrl',
+        port: 5081,
+        app: 'live',
+        streamName: 'detu',
+        iceServers: iceServers,
+        subscriptionId:
+          'subscriber-' + Math.floor(Math.random() * 0x10000).toString(16),
+        rtcpMuxPolicy: 'negotiate',
+      })
+      .then(function() {
+        // Invoke the playback action
+        return subscriber.play();
+      })
+      .catch(function(error) {
+        // A fault occurred while trying to initialize and subscribe to the stream.
+        console.error(error);
+      });
   }
 
   // private videoToSphere(videoTag: HTMLVideoElement) {
