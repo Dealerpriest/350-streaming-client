@@ -15,6 +15,7 @@
 import { Watch, Vue, Prop } from 'vue-property-decorator';
 import Component from 'vue-class-component';
 import * as THREE from 'three';
+import { WEBVR } from '@/js/WebVR';
 import { OrbitControls } from 'three-orbitcontrols-ts';
 
 @Component({
@@ -148,6 +149,24 @@ export default class Three360Canvas extends Vue {
     // directionalLight.position.set(0, 0.7, 0.7);
     // this.scene.add(directionalLight);
 
+    // console.log('browser VR support:');
+    // console.log(WEBVR.isVRSupported());
+
+    // console.log('searching vr:');
+    WEBVR.isVRFound()
+      .then((value: any) => {
+        console.log('vr resolved: ' + value);
+        this.renderer.vr.enabled = true;
+        document.body.appendChild(
+          WEBVR.createButton(this.renderer, { frameOfReferenceType: 'head-model' })
+        );
+      })
+      .catch((value: any) => {
+        console.log('rejected: ' + value);
+      });
+
+    
+
     this.controls = new OrbitControls(this.camera, this.threeCanvas);
     this.controls.noPan = true;
     this.controls.enableZoom = true;
@@ -220,10 +239,11 @@ export default class Three360Canvas extends Vue {
   }
 
   private animateLoop() {
-    requestAnimationFrame(this.animateLoop);
-    // HUDSystem.update();
+    // requestAnimationFrame(this.animateLoop);
+    // // HUDSystem.update();
+    // this.updateScene();
 
-    this.updateScene();
+    this.renderer.setAnimationLoop(this.updateScene);
   }
 }
 </script>
