@@ -160,7 +160,8 @@ export default class VideoView extends Vue {
       })
       .then(function() {
         // Invoke the playback action
-        return subscriber.play();
+        return subscriber.subscribe();
+        // return subscriber.play();
       })
       .catch(function(error: any) {
         // A fault occurred while trying to initialize and subscribe to the stream.
