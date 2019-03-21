@@ -10,15 +10,14 @@
       controls
       loop
     ></video>
+
+    <video
+      id="red5video">
+    </video>
     <!-- <div class="three-container" ref="threeContainer">
       <canvas class="three-canvas" ref="threeCanvas"></canvas>
     </div>-->
-    <Three360Canvas
-      :videoIsReady="videoIsLoaded"
-      :fov="fov"
-      videoTagId="video-source"
-    >
-    </Three360Canvas>
+    <Three360Canvas :videoIsReady="videoIsLoaded" :fov="fov" videoTagId="video-source"></Three360Canvas>
     <v-card class="camera-controls">
       <v-card-title>
         <h3>
@@ -27,14 +26,7 @@
         </h3>
       </v-card-title>
       <v-card-actions>
-        <v-slider
-          v-model="fov"
-          min="20"
-          max="200"
-          thumb-label
-          label="Field of view"
-        >
-        </v-slider>
+        <v-slider v-model="fov" min="20" max="200" thumb-label label="Field of view"></v-slider>
       </v-card-actions>
       <!-- <v-card-actions>
         <v-btn v-on:click="buttonState = !buttonState">Video is playing</v-btn>
@@ -47,10 +39,15 @@
 import { Component, Watch, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 import Three360Canvas from '@/components/Three360Canvas.vue';
-import { red5prosdk } from '@/js/red5pro';
+// import * as red5pro from '@/js/red5pro';
 // import * as THREE from 'three';
 // import { OrbitControls } from 'three-orbitcontrols-ts';
 import Hls from 'hls.js';
+
+//predefine.... Soooo bad
+// let red5prosdk: any;
+
+// declare var red5prosdk: any;
 
 @Component({
   components: {
@@ -85,11 +82,11 @@ export default class VideoView extends Vue {
 
     if (this.videoUrl.endsWith('.m3u8')) {
       this.setupHls(this.videoTag);
-    } else {
+    } else if(this.videoUrl.endsWith('.mp4')) {
       this.videoTag.src = this.videoUrl;
       this.videoTag.play();
     } else {
-      setupRed5Pro(this.videoUrl);
+      this.setupRed5Pro(this.videoUrl);
     }
 
     document.addEventListener('keypress', e => {
@@ -132,12 +129,15 @@ export default class VideoView extends Vue {
     }
   }
 
-  private setupRed5Pro(string: videoUrl){
-    // setup red5pro
+  private setupRed5Pro(videoUrl: string){
+    console.log("initializing red5prosdk");
+    console.log(red5prosdk);
     let subscriber = new red5prosdk.RTCSubscriber();
 
+    red5prosdk.setLogLevel(red5prosdk.LOG_LEVELS.TRACE);// red5prosdk.LOG_LEVELS.WARN
+
     // Create a view instance based on video element id.
-    let viewer = new red5prosdk.PlaybackView('video-source');
+    let viewer = new red5prosdk.PlaybackView('red5video');
     // Attach the subscriber to the view.
     viewer.attachSubscriber(subscriber);
 
@@ -147,11 +147,11 @@ export default class VideoView extends Vue {
     // Initialize
     subscriber
       .init({
-        protocol: 'ws',
-        host: 'videoUrl',
-        port: 5081,
+        protocol: 'wss',
+        host: 'red5pro.tiigbg.se',
+        port: 443,
         app: 'live',
-        streamName: 'detu',
+        streamName: 'hdmihack',
         iceServers: iceServers,
         subscriptionId:
           'subscriber-' + Math.floor(Math.random() * 0x10000).toString(16),
@@ -161,7 +161,7 @@ export default class VideoView extends Vue {
         // Invoke the playback action
         return subscriber.play();
       })
-      .catch(function(error) {
+      .catch(function(error: any) {
         // A fault occurred while trying to initialize and subscribe to the stream.
         console.error(error);
       });
