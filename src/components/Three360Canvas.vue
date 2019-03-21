@@ -1,13 +1,14 @@
 <template>
   <div class="three-container" ref="threeContainer">
     <canvas class="three-canvas" ref="threeCanvas"></canvas>
-    <div id="video-overlay">
+    <!-- <div style="width: 400px; height: 300px; background-color: blue;"></div> -->
+    <!-- <div id="video-overlay">
       <div class="video-button-grid">
         <v-btn class="right" flat icon>
           <v-icon @click="fullscreen()">fullscreen</v-icon>
         </v-btn>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -34,7 +35,7 @@ export default class Three360Canvas extends Vue {
   private controls: any = null;
   private effect: any = null;
   // private fov: number = 108;
-  private cameraDistance: number = 70;
+  private cameraDistance: number = 0.0001;
   private videoElement!: HTMLVideoElement;
 
   @Prop({ default: 20 })
@@ -120,7 +121,8 @@ export default class Three360Canvas extends Vue {
     let far = 4000;
     this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     // this.camera.position.set(0, 0, 0.001);
-    this.camera.position.set(0, this.cameraDistance, 0);
+    // this.camera.position.set(0, this.cameraDistance, 0);
+    this.camera.position.set(0, 0, this.cameraDistance);
 
     // Test object
     // let demoGeometry = new THREE.SphereGeometry(5,16,16);
@@ -138,9 +140,9 @@ export default class Three360Canvas extends Vue {
     // rendererDom.className = 'three-canvas';
     // this.threeContainer.appendChild(rendererDom);
 
-    // window.addEventListener('resize', () => {
-    //   this.resizeScene();
-    // });
+    window.addEventListener('resize', () => {
+      this.resizeScene();
+    });
 
     // this.effect = new THREE.StereoEffect(renderer);
     // this.effect.setSize(width, height);
@@ -219,13 +221,15 @@ export default class Three360Canvas extends Vue {
   }
 
   private resizeScene() {
-    this.camera.aspect =
-      this.threeContainer.clientWidth / this.threeContainer.clientHeight;
+    // this.camera.aspect =
+    //   this.threeContainer.clientWidth / this.threeContainer.clientHeight;
     // this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.aspect = 1.78;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(
       this.threeContainer.clientWidth,
-      this.threeContainer.clientHeight
+      this.threeContainer.clientWidth / this.camera.aspect,
+      true
     );
   }
 
@@ -255,8 +259,14 @@ export default class Three360Canvas extends Vue {
 <style lang="scss" scoped>
 .three-container {
   width: 100%;
-  position: relative;
+  // background-color: pink;
+  overflow: hidden;
+  // position: relative;
   // height: 100%;
+}
+
+.three-canvas {
+  border-radius: 1rem;
 }
 
 #video-overlay {
@@ -288,8 +298,4 @@ export default class Three360Canvas extends Vue {
 // .video-button-grid .right {
 //   float: right;
 // }
-
-.three-canvas {
-  border-radius: 1rem;
-}
 </style>
