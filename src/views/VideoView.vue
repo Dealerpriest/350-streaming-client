@@ -11,12 +11,9 @@
       loop
     ></video>
 
-    <video
+    <!-- <video
       id="red5video">
-    </video>
-    <!-- <div class="three-container" ref="threeContainer">
-      <canvas class="three-canvas" ref="threeCanvas"></canvas>
-    </div>-->
+    </video> -->
     <Three360Canvas :videoIsReady="videoIsLoaded" :fov="fov" videoTagId="video-source"></Three360Canvas>
     <v-card class="camera-controls">
       <v-card-title>
@@ -44,11 +41,6 @@ import Three360Canvas from '@/components/Three360Canvas.vue';
 // import { OrbitControls } from 'three-orbitcontrols-ts';
 import Hls from 'hls.js';
 
-//predefine.... Soooo bad
-// let red5prosdk: any;
-
-// declare var red5prosdk: any;
-
 @Component({
   components: {
     HelloWorld,
@@ -73,11 +65,20 @@ export default class VideoView extends Vue {
   private buttonState: boolean = false;
   private videoIsLoaded = false;
 
+  private streamName : string = "mystream";
+
   private mounted() {
     this.videoTag = <HTMLVideoElement>this.$refs.videoTag;
 
-    if (this.$route.query && this.$route.query.videourl) {
-      this.videoUrl = <string>this.$route.query.videourl;
+    if (this.$route.query) {
+      if(this.$route.query.videourl){
+        this.videoUrl = <string>this.$route.query.videourl;
+      }
+
+      if(this.$route.query.streamname){
+        this.streamName = <string>this.$route.query.streamname;
+      }
+      
     }
 
     if (this.videoUrl.endsWith('.m3u8')) {
@@ -137,7 +138,7 @@ export default class VideoView extends Vue {
     red5prosdk.setLogLevel(red5prosdk.LOG_LEVELS.TRACE);// red5prosdk.LOG_LEVELS.WARN
 
     // Create a view instance based on video element id.
-    let viewer = new red5prosdk.PlaybackView('red5video');
+    let viewer = new red5prosdk.PlaybackView('video-source');
     // Attach the subscriber to the view.
     viewer.attachSubscriber(subscriber);
 
@@ -151,7 +152,7 @@ export default class VideoView extends Vue {
         host: 'red5pro.tiigbg.se',
         port: 443,
         app: 'live',
-        streamName: 'hdmihack',
+        streamName: this.streamName,
         iceServers: iceServers,
         subscriptionId:
           'subscriber-' + Math.floor(Math.random() * 0x10000).toString(16),
