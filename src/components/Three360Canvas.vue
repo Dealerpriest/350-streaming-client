@@ -153,19 +153,23 @@ export default class Three360Canvas extends Vue {
     // console.log(WEBVR.isVRSupported());
 
     // console.log('searching vr:');
-    WEBVR.isVRFound()
-      .then((value: any) => {
-        console.log('vr resolved: ' + value);
-        this.renderer.vr.enabled = true;
-        document.body.appendChild(
-          WEBVR.createButton(this.renderer, { frameOfReferenceType: 'head-model' })
-        );
-      })
-      .catch((value: any) => {
-        console.log('rejected: ' + value);
-      });
-
-    
+    if (this.$route.query && this.$route.query.novr == 'true') {
+      console.log('No VR requested. Skipping vr initialization');
+    } else {
+      WEBVR.isVRFound()
+        .then((value: any) => {
+          console.log('vr resolved: ' + value);
+          this.renderer.vr.enabled = true;
+          document.body.appendChild(
+            WEBVR.createButton(this.renderer, {
+              frameOfReferenceType: 'head-model',
+            })
+          );
+        })
+        .catch((value: any) => {
+          console.log('rejected: ' + value);
+        });
+    }
 
     this.controls = new OrbitControls(this.camera, this.threeCanvas);
     this.controls.noPan = true;

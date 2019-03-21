@@ -14,7 +14,11 @@
     <!-- <video
       id="red5video">
     </video> -->
-    <Three360Canvas :videoIsReady="videoIsLoaded" :fov="fov" videoTagId="video-source"></Three360Canvas>
+    <Three360Canvas
+      :videoIsReady="videoIsLoaded"
+      :fov="fov"
+      videoTagId="video-source"
+    ></Three360Canvas>
     <v-card class="camera-controls">
       <v-card-title>
         <h3>
@@ -23,7 +27,13 @@
         </h3>
       </v-card-title>
       <v-card-actions>
-        <v-slider v-model="fov" min="20" max="200" thumb-label label="Field of view"></v-slider>
+        <v-slider
+          v-model="fov"
+          min="20"
+          max="200"
+          thumb-label
+          label="Field of view"
+        ></v-slider>
       </v-card-actions>
       <!-- <v-card-actions>
         <v-btn v-on:click="buttonState = !buttonState">Video is playing</v-btn>
@@ -65,25 +75,24 @@ export default class VideoView extends Vue {
   private buttonState: boolean = false;
   private videoIsLoaded = false;
 
-  private streamName : string = "mystream";
+  private streamName: string = 'mystream';
 
   private mounted() {
     this.videoTag = <HTMLVideoElement>this.$refs.videoTag;
 
     if (this.$route.query) {
-      if(this.$route.query.videourl){
+      if (this.$route.query.videourl) {
         this.videoUrl = <string>this.$route.query.videourl;
       }
 
-      if(this.$route.query.streamname){
+      if (this.$route.query.streamname) {
         this.streamName = <string>this.$route.query.streamname;
       }
-      
     }
 
     if (this.videoUrl.endsWith('.m3u8')) {
       this.setupHls(this.videoTag);
-    } else if(this.videoUrl.endsWith('.mp4')) {
+    } else if (this.videoUrl.endsWith('.mp4')) {
       this.videoTag.src = this.videoUrl;
       this.videoTag.play();
     } else {
@@ -130,12 +139,12 @@ export default class VideoView extends Vue {
     }
   }
 
-  private setupRed5Pro(videoUrl: string){
-    console.log("initializing red5prosdk");
+  private setupRed5Pro(videoUrl: string) {
+    console.log('initializing red5prosdk');
     console.log(red5prosdk);
     let subscriber = new red5prosdk.RTCSubscriber();
 
-    red5prosdk.setLogLevel(red5prosdk.LOG_LEVELS.TRACE);// red5prosdk.LOG_LEVELS.WARN
+    red5prosdk.setLogLevel(red5prosdk.LOG_LEVELS.TRACE); // red5prosdk.LOG_LEVELS.WARN
 
     // Create a view instance based on video element id.
     let viewer = new red5prosdk.PlaybackView('video-source');
@@ -149,7 +158,7 @@ export default class VideoView extends Vue {
     subscriber
       .init({
         protocol: 'wss',
-        host: 'red5pro.tiigbg.se',
+        host: this.videoUrl,
         port: 443,
         app: 'live',
         streamName: this.streamName,
