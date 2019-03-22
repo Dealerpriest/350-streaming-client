@@ -9,6 +9,7 @@
       muted
       controls
       loop
+      autoplay
     ></video>
 
     <Three360Canvas
@@ -115,7 +116,7 @@ export default class VideoView extends Vue {
   private setupHls(videoTag: HTMLVideoElement) {
     // var video = document.getElementById('video');
     const video = videoTag;
-    console.log(video);
+    // console.log(video);
     if (Hls.isSupported()) {
       // console.log('media source extension is supported');
       const hls = new Hls();
@@ -142,6 +143,10 @@ export default class VideoView extends Vue {
 
     // Create a view instance based on video element id.
     let viewer = new red5prosdk.PlaybackView('video-source');
+    // viewer.addEventListener('loadedmetadata', () => {
+    //   viewer.play();
+    // });
+
     // Attach the subscriber to the view.
     viewer.attachSubscriber(subscriber);
 
@@ -163,6 +168,7 @@ export default class VideoView extends Vue {
       })
       .then(function() {
         // Invoke the playback action
+        // subscriber.play();
         return subscriber.subscribe();
         // return subscriber.play();
       })

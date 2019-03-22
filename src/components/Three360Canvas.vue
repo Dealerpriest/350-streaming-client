@@ -2,13 +2,13 @@
   <div class="three-container" ref="threeContainer">
     <canvas class="three-canvas" ref="threeCanvas"></canvas>
     <!-- <div style="width: 400px; height: 300px; background-color: blue;"></div> -->
-    <!-- <div id="video-overlay">
+    <div id="video-overlay">
       <div class="video-button-grid">
         <v-btn class="right" flat icon>
           <v-icon @click="fullscreen()">fullscreen</v-icon>
         </v-btn>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -73,7 +73,7 @@ export default class Three360Canvas extends Vue {
     document.addEventListener('keypress', e => {
       if (e.key === 'f') {
         console.log('f was pressed');
-        this.threeCanvas.requestFullscreen();
+        this.fullscreen();
       }
     });
   }
@@ -115,6 +115,8 @@ export default class Three360Canvas extends Vue {
     // this.threeContainer = <HTMLDivElement>this.$refs.threeContainer;
     let width = this.threeContainer.offsetWidth;
     let height = this.threeContainer.offsetHeight;
+    // let width = window.screen.width * window.devicePixelRatio;
+    // let height = window.screen.height * window.devicePixelRatio;
     let fov = this.fov;
     let aspect = width / height;
     let near = 0.01;
@@ -135,13 +137,25 @@ export default class Three360Canvas extends Vue {
       canvas: this.threeCanvas,
     });
     this.renderer.setClearColor(0x000055, 0);
-    this.renderer.setSize(width, height);
+
+    //handle hidpi screens.
+    this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+    this.resizeScene();
+    // this.renderer.setSize(width, height);
     // let rendererDom = this.renderer.domElement;
     // rendererDom.className = 'three-canvas';
     // this.threeContainer.appendChild(rendererDom);
 
-    window.addEventListener('resize', () => {
-      this.resizeScene();
+    window.addEventListener('resize', this.resizeScene);
+
+    document.addEventListener('fullscreenchange', event => {
+      if (document.fullscreen) {
+        console.log('removing resize listener');
+        window.removeEventListener('resize', this.resizeScene);
+      } else {
+        console.log('adding resize listener');
+        window.addEventListener('resize', this.resizeScene);
+      }
     });
 
     // this.effect = new THREE.StereoEffect(renderer);
@@ -221,10 +235,12 @@ export default class Three360Canvas extends Vue {
   }
 
   private resizeScene() {
+    console.log('resizing render canvas');
+    // console.log(this.renderer.getPixelRatio());
     // this.camera.aspect =
     //   this.threeContainer.clientWidth / this.threeContainer.clientHeight;
     // this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.aspect = 1.78;
+    this.camera.aspect = 1.78; //16:9
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(
       this.threeContainer.clientWidth,
@@ -234,6 +250,10 @@ export default class Three360Canvas extends Vue {
   }
 
   private fullscreen() {
+    console.log('entering fullscreen');
+    //ignore resize while in fullscreen
+    // window.removeEventListener('resize', this.resizeScene);
+
     //   //console.log("hi");
     //   if (this.threeContainer.requestFullscreen) {
     this.threeCanvas.requestFullscreen();
@@ -244,6 +264,13 @@ export default class Three360Canvas extends Vue {
     //   } else if (this.threeContainer.webkitRequestFullscreen) {
     //     this.threeContainer.webkitRequestFullscreen();
     //   }
+
+    let width = window.screen.width; // * window.devicePixelRatio;
+    let height = window.screen.height; // * window.devicePixelRatio;
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(width, height, true);
   }
 
   private animateLoop() {
@@ -261,7 +288,7 @@ export default class Three360Canvas extends Vue {
   width: 100%;
   // background-color: pink;
   overflow: hidden;
-  // position: relative;
+  position: relative;
   // height: 100%;
 }
 
