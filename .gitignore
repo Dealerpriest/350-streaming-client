@@ -2,7 +2,7 @@
 node_modules
 /dist
 /src/js-dump
-.firebase
+.firebase/
 
 # local env files
 .env.local
